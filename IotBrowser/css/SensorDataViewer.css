@@ -1,0 +1,91 @@
+.axis path,
+.axis line{
+  fill: none;
+  stroke: black;
+  opacity: 1;
+}
+
+.line{
+  fill: none;
+  stroke: blue;
+  stroke-width: 2px;
+}
+
+.tick text{
+  font-size: 12px;
+}
+
+.tick line{
+  opacity: 0.2;
+}
+
+text.xlabel#sensor0{
+  fill:darkred;
+}
+text.xlabel#sensor1{
+  fill:darkblue;
+}
+text.xlabel#sensor2{
+  fill:darkgreen;
+}
+text.ylabel#sensor0{
+  fill:darkred;
+}
+text.ylabel#sensor1{
+  fill:darkblue;
+}
+text.ylabel#sensor2{
+  fill:darkgreen;
+}
+
+path#sensor0{
+  stroke:red;
+}
+path#sensor1{
+  stroke:blue;
+}
+path#sensor2{
+  stroke:green;
+}
+
+p.title {
+  position:relative;
+  top:20;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+button {
+  position:relative;
+  top:20;
+  left:30;
+  margin-bottom: 1.5em;
+  font-size: 100%;
+  font-weight: bold;
+  width:100;
+  height:30;
+}
+
+input.stat-load {
+  position:relative;
+  left:30;
+  top:20;
+  margin-bottom: 1.5em;
+  width:100;
+  height:30;
+  text-align:center;
+  color:black;
+  background-color:gold
+}
+
+input.stat-measure {
+  position:relative;
+  left:30;
+  top:20;
+  margin-bottom: 1.5em;
+  width:100;
+  height:30;
+  text-align:center;
+  color:black;
+  background-color:gold
+}
