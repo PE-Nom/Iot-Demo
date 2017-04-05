@@ -7,6 +7,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import com.amazonaws.services.iot.client.AWSIotMqttClient;
 
+import iotDemoMqttClient.IotDemoMqttClient;
 import java.util.Vector;
 import org.apache.log4j.Logger;
 
@@ -15,7 +16,7 @@ public class IotDeviceServer {
 	static Logger logger = Logger.getLogger(IotDeviceServer.class.getName());
 
 	private Vector<IotDeviceSensorCommunicator> communicators;
-	private AWSIotMqttClient awsIotClient;
+	private IotDemoMqttClient mqttClient;
 
 	public IotDeviceServer( String bindAddr, int bindPort ) throws IOException {
 
@@ -24,18 +25,18 @@ public class IotDeviceServer {
         InetSocketAddress sockAddr = new InetSocketAddress(bindAddr, bindPort);
         //create a socket channel and bind to local bind address
         AsynchronousServerSocketChannel serverSock =  AsynchronousServerSocketChannel.open().bind(sockAddr);
-       //start to accept the connection from client
+        //start to accept the connection from client
         serverSock.accept(serverSock, new onAcceptCompletionHandler() );
 	}
-	public IotDeviceServer( String bindAddr, int bindPort, AWSIotMqttClient awsIotClient ) throws IOException {
+	public IotDeviceServer( String bindAddr, int bindPort, IotDemoMqttClient mqttClient ) throws IOException {
 
-		this.awsIotClient = awsIotClient;
+		this.mqttClient = mqttClient;
 		this.communicators = new Vector<IotDeviceSensorCommunicator>();
 		
         InetSocketAddress sockAddr = new InetSocketAddress(bindAddr, bindPort);
         //create a socket channel and bind to local bind address
         AsynchronousServerSocketChannel serverSock =  AsynchronousServerSocketChannel.open().bind(sockAddr);
-       //start to accept the connection from client
+        //start to accept the connection from client
         serverSock.accept(serverSock, new onAcceptCompletionHandler() );
 
 	}
@@ -51,7 +52,7 @@ public class IotDeviceServer {
             serverSock.accept( serverSock, this );
             
             // Communicator　オブジェクト生成
-        	IotDeviceSensorCommunicator communicator = new IotDeviceSensorCommunicator(IotDeviceServer.this,sockChannel, IotDeviceServer.this.awsIotClient);
+        	IotDeviceSensorCommunicator communicator = new IotDeviceSensorCommunicator(IotDeviceServer.this,sockChannel, IotDeviceServer.this.mqttClient);
 //        	IotDeviceSensorCommunicator communicator = new IotDeviceSensorCommunicator(IotDeviceServer.this,sockChannel);
             IotDeviceServer.this.communicators.add(communicator);
 			/*

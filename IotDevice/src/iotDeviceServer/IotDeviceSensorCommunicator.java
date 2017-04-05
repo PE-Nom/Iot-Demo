@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import iotSensorMessage.SensorInfo;
 import iotDemoMqttClient.NonBlockingPublishListener;
 import iotDemoMqttClient.CommandListener;
+import iotDemoMqttClient.IotDemoMqttClient;
 
 public class IotDeviceSensorCommunicator {
 
@@ -34,7 +35,7 @@ public class IotDeviceSensorCommunicator {
 	private AtomicInteger timeoutCnt = new AtomicInteger( 0 );
 	private boolean sessionAlive;
 	private IotDeviceServer server;
-	private AWSIotMqttClient awsIotClient = null;
+	private IotDemoMqttClient mqttClient = null;
 	private onReadCompletionHandler readHandler;
 	private onWriteCompletionHandler writeHandler;
 	private Object timerlock = new Object();
@@ -52,10 +53,10 @@ public class IotDeviceSensorCommunicator {
 		this.sessionAlive = true;
 		this.Read();
 	}
-	public IotDeviceSensorCommunicator(IotDeviceServer server,AsynchronousSocketChannel sockChannel,AWSIotMqttClient awsIotClient){
+	public IotDeviceSensorCommunicator(IotDeviceServer server,AsynchronousSocketChannel sockChannel,IotDemoMqttClient mqttClient){
 		this.sockChannel = sockChannel;
 		this.server = server;
-		this.awsIotClient = awsIotClient;
+		this.mqttClient = mqttClient;
 		this.readHandler = new onReadCompletionHandler(sockChannel);
 		this.writeHandler = new onWriteCompletionHandler(sockChannel);
 		this.sessionAlive = true;
@@ -101,8 +102,8 @@ public class IotDeviceSensorCommunicator {
 				ByteBuffer mes = ByteBuffer.allocate(this.buf.position());
 				mes.put(this.buf.array(),this.buf.arrayOffset(),this.buf.position());
 				String message = new String(mes.array());
-				IotDeviceSensorCommunicator.logger.info( "id:"+IotDeviceSensorCommunicator.this.sensorId+
-									", Read  message:" + message + " @ " + this.messageRead.toString() );
+//				IotDeviceSensorCommunicator.logger.info( "id:"+IotDeviceSensorCommunicator.this.sensorId+
+//									", Read  message:" + message + " @ " + this.messageRead.toString() );
 				this.buf.flip();
             	/*
             	 * 受信メッセージパース（非同期の為、連結して受信する場合があるので”}"をセパレータとして分割し、"}"を再度追加して個別のメッセージを抽出する）
@@ -216,8 +217,8 @@ public class IotDeviceSensorCommunicator {
       	}
     	
     	public void completed(Integer result, AsynchronousSocketChannel channel ) {
-            IotDeviceSensorCommunicator.logger.info( "id:"+IotDeviceSensorCommunicator.this.sensorId+
-            					", Write message:" + this.message + " @ " + this.messageWritten.get());
+//            IotDeviceSensorCommunicator.logger.info( "id:"+IotDeviceSensorCommunicator.this.sensorId+
+//            					", Write message:" + this.message + " @ " + this.messageWritten.get());
         	/*
         	 * 送信排他制御の為、ここでsemを解放する。
         	 * (多重送信による例外回避の為）
@@ -298,14 +299,14 @@ public class IotDeviceSensorCommunicator {
 	 * Publish Message
 	 */
 	private void publishMessage(SensorInfo info){
-		if( this.awsIotClient == null ) return;
+		if( this.mqttClient == null ) return;
 		
 		ObjectMapper mapper = new ObjectMapper();
         try {
         	AWSIotMessage message = new NonBlockingPublishListener(	this.mqttTopic,
         															this.iotDemoTopicQos,
         															mapper.writeValueAsString(info));
-            awsIotClient.publish(message);
+            this.mqttClient.publish(message);
         } catch (Exception e) {
             IotDeviceSensorCommunicator.logger.info(System.currentTimeMillis() + ": exception @ publishMessage " + e.toString());
         }
@@ -324,7 +325,7 @@ public class IotDeviceSensorCommunicator {
              */
 			this.topic = new CommandListener("ID"+this.sensorId+"-CNT",this.iotDemoTopicQos,IotDeviceSensorCommunicator.this);
 			try {
-				awsIotClient.subscribe(topic, true);
+				this.mqttClient.subscribe(this.topic);
 			}catch(AWSIotException e){
 				IotDeviceSensorCommunicator.logger.info("Exception @ subscriber construct!");
 			}
@@ -415,6 +416,7 @@ public class IotDeviceSensorCommunicator {
 				this.sessionAlive = false;
 				this.stopTimer();
 				this.server.removeCommunicator(this);
+				this.mqttClient.removeSubscriber(this.topic);
 			}catch(Exception e){
 				IotDeviceSensorCommunicator.logger.info("Close Exceptio Occured" + e.toString());
 			}

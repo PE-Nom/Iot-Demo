@@ -24,7 +24,7 @@ public class CommandListener extends AWSIotTopic {
 
     @Override
     public void onMessage(AWSIotMessage message) {
-        CommandListener.logger.info("CommandListener " + System.currentTimeMillis() + ": <<< " + message.getStringPayload());
+//        CommandListener.logger.info("CommandListener " + System.currentTimeMillis() + ": <<< " + message.getStringPayload());
         ObjectMapper mapper = new ObjectMapper();
         String m = message.getStringPayload();
 		try{

@@ -12,6 +12,7 @@ import com.amazonaws.services.iot.client.AWSIotException;
 
 import iotDemoCredentialSample.IotDemoCredentials;
 import iotDeviceServer.IotDeviceServer;
+import iotDemoMqttClient.IotDemoMqttClient;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -28,7 +29,7 @@ public class IotDeviceDemo {
 
 		String identity_pool_id = null;
 		String clientEndpoint = null;
-		String clientId		  = "UUID";		// ユニークな文字列であればOK。最終的にはUUIDで生成する。
+//		String clientId		  = "UUID";		// ユニークな文字列であればOK。最終的にはUUIDで生成する。
 
 		DOMConfigurator.configure(".\\log4j.xml");
 		BasicConfigurator.configure();
@@ -45,39 +46,18 @@ public class IotDeviceDemo {
 			e.printStackTrace();
 		}
 		
-		AWSIotMqttClient awsIotClient;
+		IotDemoMqttClient mqttClient = new IotDemoMqttClient(identity_pool_id, clientEndpoint);
 		
-		/*
-		 * AWS Iot に接続する　Mqtt　クライアント構築
-		 */
-    	IotDemoCredentials demoCredentials
-    				= new IotDemoCredentials(identity_pool_id);				// 未認証ユーザで一時的な認証情報を生成する。
-    	Credentials credential		= demoCredentials.getCredentials();		// 一時的な認証情報を得る。
-        String awsAccessKeyId 		= credential.getAccessKeyId();			// 認証情報からアクセスキーを取得する。
-        String awsSecretAccessKey	= credential.getSecretKey();			// 認証情報からシークレットキーを取得する。
-        String sessionToken			= credential.getSessionToken();			// 認証情報をからセッショントークンを取得する。
-
-        if (awsAccessKeyId != null && awsSecretAccessKey != null) {
-        	awsIotClient = new AWSIotMqttClient(clientEndpoint, clientId, awsAccessKeyId, awsSecretAccessKey,sessionToken);
-        	try{
-                awsIotClient.connect();
-        	}catch(AWSIotException e){
-        		System.out.println("AWSIoException @ main :"+e.toString());
-        	}
-	        /*
-	         * IotSensorからの接続待ち Listenソケット生成
-	         */
-			try{
-			 	IotDeviceServer server = new IotDeviceServer("127.0.0.1", 3575, awsIotClient);
+       	try{
+       		mqttClient.connect();
+       		IotDeviceServer server = new IotDeviceServer("127.0.0.1", 3575, mqttClient);
 //			 	IotDeviceServer server = new IotDeviceServer("127.0.0.1", 3575);
-			}catch(IOException e){
-				logger.info("Exception @ main" + e.toString());
-			}
 			logger.info("start");
 			while(true);
-        }
-        else{
-        	logger.info("AWSIotMqttClient Construct faillure!! @ main");
-        }
+        }catch(AWSIotException e){
+        	logger.info(String.format("AWSIotException @ main : %s"+e.getErrorCode()));
+		}catch(IOException e){
+			logger.info("Exception @ main" + e.toString());
+		}
 	}
 }
