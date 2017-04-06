@@ -7,7 +7,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import com.amazonaws.services.iot.client.AWSIotMqttClient;
 
-import iotDemoMqttClient.IotDemoMqttClient;
+import iotDemoMqttClient.MqttClient;
 import java.util.Vector;
 import org.apache.log4j.Logger;
 
@@ -16,7 +16,7 @@ public class IotDeviceServer {
 	static Logger logger = Logger.getLogger(IotDeviceServer.class.getName());
 
 	private Vector<IotDeviceSensorCommunicator> communicators;
-	private IotDemoMqttClient mqttClient;
+	private MqttClient mqttClient;
 
 	public IotDeviceServer( String bindAddr, int bindPort ) throws IOException {
 
@@ -28,7 +28,7 @@ public class IotDeviceServer {
         //start to accept the connection from client
         serverSock.accept(serverSock, new onAcceptCompletionHandler() );
 	}
-	public IotDeviceServer( String bindAddr, int bindPort, IotDemoMqttClient mqttClient ) throws IOException {
+	public IotDeviceServer( String bindAddr, int bindPort, MqttClient mqttClient ) throws IOException {
 
 		this.mqttClient = mqttClient;
 		this.communicators = new Vector<IotDeviceSensorCommunicator>();

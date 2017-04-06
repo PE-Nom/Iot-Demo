@@ -12,7 +12,7 @@ import com.amazonaws.services.iot.client.AWSIotException;
 
 import iotDemoCredentialSample.IotDemoCredentials;
 import iotDeviceServer.IotDeviceServer;
-import iotDemoMqttClient.IotDemoMqttClient;
+import iotDemoMqttClient.MqttClient;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -46,7 +46,7 @@ public class IotDeviceDemo {
 			e.printStackTrace();
 		}
 		
-		IotDemoMqttClient mqttClient = new IotDemoMqttClient(identity_pool_id, clientEndpoint);
+		MqttClient mqttClient = new MqttClient(identity_pool_id, clientEndpoint);
 		
        	try{
        		mqttClient.connect();

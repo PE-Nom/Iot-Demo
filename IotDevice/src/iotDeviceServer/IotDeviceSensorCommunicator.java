@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import iotSensorMessage.SensorInfo;
 import iotDemoMqttClient.NonBlockingPublishListener;
 import iotDemoMqttClient.CommandListener;
-import iotDemoMqttClient.IotDemoMqttClient;
+import iotDemoMqttClient.MqttClient;
 
 public class IotDeviceSensorCommunicator {
 
@@ -35,7 +35,7 @@ public class IotDeviceSensorCommunicator {
 	private AtomicInteger timeoutCnt = new AtomicInteger( 0 );
 	private boolean sessionAlive;
 	private IotDeviceServer server;
-	private IotDemoMqttClient mqttClient = null;
+	private MqttClient mqttClient = null;
 	private onReadCompletionHandler readHandler;
 	private onWriteCompletionHandler writeHandler;
 	private Object timerlock = new Object();
@@ -53,7 +53,7 @@ public class IotDeviceSensorCommunicator {
 		this.sessionAlive = true;
 		this.Read();
 	}
-	public IotDeviceSensorCommunicator(IotDeviceServer server,AsynchronousSocketChannel sockChannel,IotDemoMqttClient mqttClient){
+	public IotDeviceSensorCommunicator(IotDeviceServer server,AsynchronousSocketChannel sockChannel,MqttClient mqttClient){
 		this.sockChannel = sockChannel;
 		this.server = server;
 		this.mqttClient = mqttClient;
